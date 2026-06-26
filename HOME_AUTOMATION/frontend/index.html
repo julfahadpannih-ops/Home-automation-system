@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Pro - Dark UI</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="js/tailwind.config.js"></script>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="login-overlay" class="fixed inset-0 z-[100] bg-[#18181b] flex items-center justify-center transition-opacity duration-500">
+    <div class="bg-cardbg p-8 rounded-[24px] shadow-2xl border border-white/5 w-full max-w-md flex flex-col relative overflow-hidden mx-4">
+        <div class="absolute -right-10 -top-10 w-32 h-32 bg-accentOrg/10 rounded-full blur-2xl"></div>
+        <div class="text-3xl font-black text-accentOrg mb-2 flex items-center gap-3 tracking-wide z-10">
+            <i class="fa-solid fa-bolt"></i>
+            <span>SMART<span class="text-white">HOME</span></span>
+        </div>
+        <p class="text-textSub mb-8 z-10 text-sm">Please sign in to access your dashboard.</p>
+        
+        <div class="z-10 mb-4">
+            <label class="block text-xs font-bold text-textSub mb-2 tracking-wide uppercase">Username</label>
+            <div class="relative">
+                <i class="fa-solid fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-textSub"></i>
+                <input id="login-user" type="text" class="w-full bg-[#1e1e24] text-white border border-white/10 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:border-accentOrg transition" placeholder="Enter username">
+            </div>
+        </div>
+        <div class="z-10 mb-6">
+            <label class="block text-xs font-bold text-textSub mb-2 tracking-wide uppercase">Password</label>
+            <div class="relative">
+                <i class="fa-solid fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-textSub"></i>
+                <input id="login-pass" type="password" class="w-full bg-[#1e1e24] text-white border border-white/10 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:border-accentOrg transition" placeholder="Enter password" onkeypress="handleLoginKeyPress(event)">
+            </div>
+            <p id="login-error" class="text-red-500 text-xs mt-2 hidden">Invalid username or password.</p>
+        </div>
+        
+        <button onclick="handleLogin()" class="z-10 w-full bg-accentOrg hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition flex justify-center items-center gap-2">
+            Sign In <i class="fa-solid fa-arrow-right"></i>
+        </button>
+    </div>
+</div>
+
+<nav class="w-64 bg-[#1e1e24] border-r border-white/5 flex flex-col p-6 fixed h-full z-50 transition-transform duration-300 max-md:-translate-x-full" id="sidebar">
+    <div class="text-2xl font-black text-accentOrg mb-12 flex items-center gap-3 tracking-wide">
+        <i class="fa-solid fa-bolt"></i>
+        <span>SMART<span class="text-white">HOME</span></span>
+    </div>
+    <div class="flex-1">
+        <button class="nav-btn w-full text-left px-5 py-4 mb-2 rounded-xl flex items-center gap-4 font-medium active" onclick="showSection('dashboard', this)">
+            <i class="fa-solid fa-border-all text-lg w-6"></i> Dashboard
+        </button>
+        <button class="nav-btn w-full text-left px-5 py-4 mb-2 rounded-xl flex items-center gap-4 font-medium" onclick="showSection('devices', this)">
+            <i class="fa-solid fa-sliders text-lg w-6"></i> All Devices
+        </button>
+        <button class="nav-btn w-full text-left px-5 py-4 mb-2 rounded-xl flex items-center gap-4 font-medium" onclick="showSection('settings', this)">
+            <i class="fa-solid fa-gear text-lg w-6"></i> Settings
+        </button>
+        <button class="nav-btn w-full text-left px-5 py-4 mb-2 rounded-xl flex items-center gap-4 font-medium" onclick="showSection('history', this)">
+            <i class="fa-solid fa-clock-rotate-left text-lg w-6"></i> History Log
+        </button>
+    </div>
+    
+    <div class="mt-auto flex flex-col gap-3">
+        <button onclick="handleLogout()" class="nav-btn w-full text-left px-5 py-3 rounded-xl flex items-center gap-4 font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors">
+            <i class="fa-solid fa-right-from-bracket text-lg w-6"></i> Logout
+        </button>
+        <div class="bg-white/5 p-4 rounded-xl flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-accentBlue text-white flex items-center justify-center font-bold uppercase" id="display-initial">
+                MA
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-white" id="display-username">Manilyn</p>
+                <p class="text-xs text-textSub">System Admin</p>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="flex-1 ml-64 p-8 overflow-y-auto max-md:ml-0 max-md:p-4 relative">
+    <header class="flex justify-between items-center mb-10">
+        <div class="flex items-center gap-4">
+            <i class="fa-solid fa-bars text-2xl cursor-pointer md:hidden text-textSub hover:text-white transition" onclick="document.getElementById('sidebar').classList.toggle('max-md:-translate-x-full')"></i>
+            <div>
+                <h3 class="text-textSub text-sm font-medium m-0">Welcome Home,</h3>
+                <h1 class="text-3xl font-bold text-white mt-1 tracking-tight" id="date-display">Smart Dashboard</h1>
+            </div>
+        </div>
+    </header>
+
+    <div id="dashboard" class="content-section active-section">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            
+            <div class="bg-cardbg rounded-[24px] p-6 shadow-lg border border-white/5 flex flex-col lg:col-span-2">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-white">Live Home View</h2>
+                    <div class="flex gap-2">
+                        <span class="w-2 h-2 rounded-full bg-accentOrg animate-pulse"></span>
+                        <span class="w-2 h-2 rounded-full bg-white/20"></span>
+                        <span class="w-2 h-2 rounded-full bg-white/20"></span>
+                    </div>
+                </div>
+                <div class="house-container flex-1">
+                    <div class="room" style="grid-column: 1; grid-row: 1; background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1618202133208-2907bebba9e1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'); background-size: cover; background-position: center;">
+                        <span class="room-label">Living Room 1</span>
+                        <div id="h-light1" class="h-device light"><i class="fa-solid fa-lightbulb"></i></div>
+                        <div id="h-fan1" class="h-device fan"><i class="fa-solid fa-fan"></i></div>
+                    </div>
+                    <div class="room" style="grid-column: 2; grid-row: 1; background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1556911220-bff31c812dba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'); background-size: cover; background-position: center;">
+                        <span class="room-label">Kitchen</span>
+                        <div id="h-light2" class="h-device light"><i class="fa-solid fa-lightbulb"></i></div>
+                    </div>
+                    <div class="room" style="grid-column: 1; grid-row: 2; background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'); background-size: cover; background-position: center;">
+                        <span class="room-label">Living Room 2</span>
+                        <div id="h-fan3" class="h-device fan"><i class="fa-solid fa-fan"></i></div>
+                        <div id="h-light4" class="h-device light"><i class="fa-solid fa-lightbulb"></i></div>
+                    </div>
+                    <div class="room" style="grid-column: 2; grid-row: 2; background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1616594039964-ae9021a400a0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'); background-size: cover; background-position: center;">
+                        <span class="room-label">Bedroom</span>
+                        <div id="h-light3" class="h-device light"><i class="fa-solid fa-lightbulb"></i></div>
+                        <div id="h-fan2" class="h-device fan"><i class="fa-solid fa-fan"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-6">
+                <div class="bg-gradient-to-br from-cardbg to-[#1e1e24] rounded-[24px] p-6 shadow-lg border border-white/5">
+                    <h2 class="text-sm font-semibold text-textSub mb-2 uppercase tracking-wider">System Status</h2>
+                    <div id="summary" class="text-2xl font-bold text-white text-center py-2 flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-rotate animate-spin text-accentOrg text-lg"></i> Syncing...
+                    </div>
+                    <div id="power-summary" class="text-xs font-medium text-emerald-400 text-center mt-2 border-t border-white/5 pt-2 hidden">
+                        <i class="fa-solid fa-bolt"></i> Live: 0W | Today: 0.0000 kWh | Overall: 0.0000 kWh
+                    </div>
+                </div>
+
+                <div class="bg-cardbg rounded-[24px] p-6 shadow-lg border border-white/5 relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-accentBlue/10 rounded-full blur-2xl"></div>
+                    
+                    <h2 class="text-sm font-semibold text-textSub mb-4 uppercase tracking-wider relative z-10">Environment</h2>
+                    <div class="flex justify-between items-center relative z-10">
+                        <div class="flex flex-col items-center">
+                            <i class="fa-solid fa-temperature-half text-accentOrg text-2xl mb-2 drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]"></i>
+                            <span id="val-temp" class="text-xl font-bold text-white">--°C</span>
+                            <small class="text-[10px] text-textSub uppercase mt-1">Temp</small>
+                        </div>
+                        <div class="w-px h-12 bg-white/10"></div>
+                        <div class="flex flex-col items-center">
+                            <i class="fa-solid fa-droplet text-accentBlue text-2xl mb-2 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]"></i>
+                            <span id="val-hum" class="text-xl font-bold text-white">--%</span>
+                            <small class="text-[10px] text-textSub uppercase mt-1">Humidity</small>
+                        </div>
+                        <div class="w-px h-12 bg-white/10"></div>
+                        <div class="flex flex-col items-center">
+                            <i class="fa-regular fa-sun text-yellow-400 text-2xl mb-2 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]" id="ldr-icon"></i>
+                            <span id="val-ldr" class="text-xl font-bold text-white">--</span>
+                            <small class="text-[10px] text-textSub uppercase mt-1">Light</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-cardbg rounded-[24px] p-6 shadow-lg border border-white/5 flex-1 flex flex-col">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="text-sm font-semibold text-textSub uppercase tracking-wider">Voice Control</h2>
+                        <i class="fa-solid fa-microphone-lines text-textSub"></i>
+                    </div>
+                    
+                    <div class="flex gap-3 mt-auto">
+                        <button class="flex-1 bg-accentOrg hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition flex justify-center items-center gap-2" id="btn-listen" onclick="startVoice()">
+                            <i class="fa-solid fa-microphone"></i> Listen
+                        </button>
+                        <button class="w-14 bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white py-3 rounded-xl font-semibold transition flex justify-center items-center" id="btn-stop" onclick="stopVoice()">
+                            <i class="fa-solid fa-stop"></i>
+                        </button>
+                    </div>
+                    <div class="bg-[#121214] text-emerald-400 font-mono p-4 rounded-xl h-32 overflow-y-auto text-xs mt-4 border border-white/5 shadow-inner" id="log">Console Ready...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center mb-6 mt-8">
+            <h3 class="text-xl font-bold text-white">Quick Control</h3>
+            <button class="text-sm text-accentBlue hover:text-blue-400 font-medium" onclick="showSection('devices', document.querySelectorAll('.nav-btn')[1])">View All <i class="fa-solid fa-arrow-right ml-1"></i></button>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            
+            <div class="device-tile bg-cardbg rounded-[24px] p-5 shadow-lg border border-white/5 flex flex-col justify-between h-44 transition-all duration-300 hover:-translate-y-1" id="card-light1">
+                <div class="flex justify-between items-start">
+                    <div class="tile-icon w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-textSub text-xl transition-all duration-300 mb-2"><i class="fa-regular fa-lightbulb"></i></div>
+                    <label class="switch"><input type="checkbox" id="sw-light1" onchange="writeVirtual(2, this.checked?1:0)"><span class="slider"></span></label>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-white mb-1">Living Light 1</h4>
+                    <p class="text-xs text-textSub flex justify-between items-center">Living Room 1 <span class="status-text text-xs font-bold text-textSub" id="txt-light1">OFF</span></p>
+                </div>
+            </div>
+
+            <div class="device-tile bg-cardbg rounded-[24px] p-5 shadow-lg border border-white/5 flex flex-col justify-between h-44 transition-all duration-300 hover:-translate-y-1" id="card-light2">
+                <div class="flex justify-between items-start">
+                    <div class="tile-icon w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-textSub text-xl transition-all duration-300 mb-2"><i class="fa-solid fa-utensils"></i></div>
+                    <label class="switch"><input type="checkbox" id="sw-light2" onchange="writeVirtual(3, this.checked?1:0)"><span class="slider"></span></label>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-white mb-1">Kitchen Light</h4>
+                    <p class="text-xs text-textSub flex justify-between items-center">Kitchen <span class="status-text text-xs font-bold text-textSub" id="txt-light2">OFF</span></p>
+                </div>
+            </div>
+
+            <div class="device-tile bg-cardbg rounded-[24px] p-5 shadow-lg border border-white/5 flex flex-col justify-between h-44 transition-all duration-300 hover:-translate-y-1" id="card-light3">
+                <div class="flex justify-between items-start">
+                    <div class="tile-icon w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-textSub text-xl transition-all duration-300 mb-2"><i class="fa-solid fa-bed"></i></div>
+                    <label class="switch"><input type="checkbox" id="sw-light3" onchange="writeVirtual(4, this.checked?1:0)"><span class="slider"></span></label>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-white mb-1">Bed Light</h4>
+                    <p class="text-xs text-textSub flex justify-between items-center">Bedroom <span class="status-text text-xs font-bold text-textSub" id="txt-light3">OFF</span></p>
+                </div>
+            </div>
+
+            <div class="device-tile bg-cardbg rounded-[24px] p-5 shadow-lg border border-white/5 flex flex-col justify-between h-44 transition-all duration-300 hover:-translate-y-1" id="card-light4">
+                <div class="flex justify-between items-start">
+                    <div class="tile-icon w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-textSub text-xl transition-all duration-300 mb-2"><i class="fa-solid fa-door-open"></i></div>
+                    <label class="switch"><input type="checkbox" id="sw-light4" onchange="writeVirtual(5, this.checked?1:0)"><span class="slider"></span></label>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-white mb-1">Living Light 2</h4>
+                    <p class="text-xs text-textSub flex justify-between items-center">Living Room 2 <span class="status-text text-xs font-bold text-textSub" id="txt-light4">OFF</span></p>
+                </div>
+            </div>
+
+            <div class="device-tile bg-cardbg rounded-[24px] p-5 shadow-lg border border-white/5 flex flex-col justify-between h-44 transition-all duration-300 hover:-translate-y-1" id="card-fan1">
+                <div class="flex justify-between items-start">
+                    <div class="tile-icon w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-textSub text-xl transition-all duration-300 mb-2"><i class="fa-solid fa-fan"></i></div>
+                    <label class="switch"><input type="checkbox" id="sw-fan1" onchange="writeVirtual(0, this.checked?1:0)"><span class="slider"></span></label>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-white mb-1">Living Fan 1</h4>
+                    <p class="text-xs text-textSub flex justify-between items-center">Living Room 1 <span class="status-text text-xs font-bold text-textSub" id="txt-fan1">OFF</span></p>
+                </div>
+            </div>
+
+            <div class="device-tile bg-cardbg rounded-[24px] p-5 shadow-lg border border-white/5 flex flex-col justify-between h-44 transition-all duration-300 hover:-translate-y-1" id="card-fan2">
+                <div class="flex justify-between items-start">
+                    <div class="tile-icon w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-textSub text-xl transition-all duration-300 mb-2"><i class="fa-solid fa-fan"></i></div>
+                    <label class="switch"><input type="checkbox" id="sw-fan2" onchange="writeVirtual(1, this.checked?1:0)"><span class="slider"></span></label>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-white mb-1">Bedroom Fan</h4>
+                    <p class="text-xs text-textSub flex justify-between items-center">Bedroom <span class="status-text text-xs font-bold text-textSub" id="txt-fan2">OFF</span></p>
+                </div>
+            </div>
+
+            <div class="device-tile bg-cardbg rounded-[24px] p-5 shadow-lg border border-white/5 flex flex-col justify-between h-44 transition-all duration-300 hover:-translate-y-1" id="card-fan3">
+                <div class="flex justify-between items-start">
+                    <div class="tile-icon w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-textSub text-xl transition-all duration-300 mb-2"><i class="fa-solid fa-wind"></i></div>
+                    <label class="switch"><input type="checkbox" id="sw-fan3" onchange="writeVirtual(6, this.checked?1:0)"><span class="slider"></span></label>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-white mb-1">Guest Fan</h4>
+                    <p class="text-xs text-textSub flex justify-between items-center">Living Room 2 <span class="status-text text-xs font-bold text-textSub" id="txt-fan3">OFF</span></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="devices" class="content-section">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <h2 class="text-2xl font-bold text-white">All Connected Devices</h2>
+            <div class="flex items-center gap-4 w-full md:w-auto">
+                <div class="flex items-center gap-2 bg-cardbg px-4 py-2 rounded-xl border border-white/5 shadow-inner">
+                    <span class="text-sm font-semibold text-white uppercase tracking-wider text-xs">Master Toggle</span>
+                    <label class="switch"><input type="checkbox" id="master-toggle" onchange="toggleAllDevices(this.checked)"><span class="slider"></span></label>
+                </div>
+                <div class="relative flex-1 md:w-64">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-textSub"></i>
+                    <input type="text" id="device-search" onkeyup="searchItems('devices', 'device-search', '.device-tile')" placeholder="Search devices..." class="w-full bg-[#1e1e24] text-white border border-white/10 rounded-xl py-2 pl-9 pr-4 focus:outline-none focus:border-accentBlue transition text-sm shadow-inner">
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            <div class="device-tile bg-cardbg rounded-[24px] p-5 shadow-lg border border-white/5 flex flex-col justify-between h-44 transition-all duration-300 hover:-translate-y-1">
+                <div class="flex justify-between items-start">
+                    <div class="tile-icon w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-textSub text-xl transition-all duration-300 mb-2"><i class="fa-regular fa-lightbulb"></i></div>
+                    <label class="switch"><input type="checkbox" onchange="document.getElementById('sw-light1').click(); this.checked = document.getElementById('sw-light1').checked;"><span class="slider"></span></label>
+                </div>
+                <div><h4 class="text-sm font-semibold text-white mb-1">Living Light 1</h4><p class="text-xs text-textSub">Living Room 1</p></div>
+            </div>
+            <div class="device-tile bg-cardbg rounded-[24px] p-5 shadow-lg border border-white/5 flex flex-col justify-between h-44 transition-all duration-300 hover:-translate-y-1">
+                <div class="flex justify-between items-start">
+                    <div class="tile-icon w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-textSub text-xl transition-all duration-300 mb-2"><i class="fa-solid fa-utensils"></i></div>
+                    <label class="switch"><input type="checkbox" onchange="document.getElementById('sw-light2').click(); this.checked = document.getElementById('sw-light2').checked;"><span class="slider"></span></label>
+                </div>
+                <div><h4 class="text-sm font-semibold text-white mb-1">Kitchen Light</h4><p class="text-xs text-textSub">Kitchen</p></div>
+            </div>
+            <div class="device-tile bg-cardbg rounded-[24px] p-5 shadow-lg border border-white/5 flex flex-col justify-between h-44 transition-all duration-300 hover:-translate-y-1">
+                <div class="flex justify-between items-start">
+                    <div class="tile-icon w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-textSub text-xl transition-all duration-300 mb-2"><i class="fa-solid fa-bed"></i></div>
+                    <label class="switch"><input type="checkbox" onchange="document.getElementById('sw-light3').click(); this.checked = document.getElementById('sw-light3').checked;"><span class="slider"></span></label>
+                </div>
+                <div><h4 class="text-sm font-semibold text-white mb-1">Bedroom Light</h4><p class="text-xs text-textSub">Bedroom</p></div>
+            </div>
+            <div class="device-tile bg-cardbg rounded-[24px] p-5 shadow-lg border border-white/5 flex flex-col justify-between h-44 transition-all duration-300 hover:-translate-y-1">
+                <div class="flex justify-between items-start">
+                    <div class="tile-icon w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-textSub text-xl transition-all duration-300 mb-2"><i class="fa-solid fa-door-open"></i></div>
+                    <label class="switch"><input type="checkbox" onchange="document.getElementById('sw-light4').click(); this.checked = document.getElementById('sw-light4').checked;"><span class="slider"></span></label>
+                </div>
+                <div><h4 class="text-sm font-semibold text-white mb-1">Living Light 2</h4><p class="text-xs text-textSub">Living Room 2</p></div>
+            </div>
+            <div class="device-tile bg-cardbg rounded-[24px] p-5 shadow-lg border border-white/5 flex flex-col justify-between h-44 transition-all duration-300 hover:-translate-y-1">
+                <div class="flex justify-between items-start">
+                    <div class="tile-icon w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-textSub text-xl transition-all duration-300 mb-2"><i class="fa-solid fa-fan"></i></div>
+                    <label class="switch"><input type="checkbox" onchange="document.getElementById('sw-fan1').click(); this.checked = document.getElementById('sw-fan1').checked;"><span class="slider"></span></label>
+                </div>
+                <div><h4 class="text-sm font-semibold text-white mb-1">Living Fan 1</h4><p class="text-xs text-textSub">Living Room 1</p></div>
+            </div>
+             <div class="device-tile bg-cardbg rounded-[24px] p-5 shadow-lg border border-white/5 flex flex-col justify-between h-44 transition-all duration-300 hover:-translate-y-1">
+                <div class="flex justify-between items-start">
+                    <div class="tile-icon w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-textSub text-xl transition-all duration-300 mb-2"><i class="fa-solid fa-fan"></i></div>
+                    <label class="switch"><input type="checkbox" onchange="document.getElementById('sw-fan2').click(); this.checked = document.getElementById('sw-fan2').checked;"><span class="slider"></span></label>
+                </div>
+                <div><h4 class="text-sm font-semibold text-white mb-1">Bedroom Fan</h4><p class="text-xs text-textSub">Bedroom</p></div>
+            </div>
+            <div class="device-tile bg-cardbg rounded-[24px] p-5 shadow-lg border border-white/5 flex flex-col justify-between h-44 transition-all duration-300 hover:-translate-y-1">
+                <div class="flex justify-between items-start">
+                    <div class="tile-icon w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-textSub text-xl transition-all duration-300 mb-2"><i class="fa-solid fa-wind"></i></div>
+                    <label class="switch"><input type="checkbox" onchange="document.getElementById('sw-fan3').click(); this.checked = document.getElementById('sw-fan3').checked;"><span class="slider"></span></label>
+                </div>
+                <div><h4 class="text-sm font-semibold text-white mb-1">Guest Fan</h4><p class="text-xs text-textSub">Living Room 2</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="history" class="content-section">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <h2 class="text-2xl font-bold text-white">System History Logs</h2>
+            <div class="flex gap-2 bg-[#1e1e24] p-1 rounded-lg border border-white/5 w-full md:w-auto overflow-x-auto">
+                <button id="tab-btn-device" onclick="switchHistoryTab('device')" class="flex-1 px-4 py-2 rounded-md bg-white/10 text-white font-semibold text-sm transition-all whitespace-nowrap">Device Toggles</button>
+                <button id="tab-btn-power" onclick="switchHistoryTab('power')" class="flex-1 px-4 py-2 rounded-md text-textSub hover:text-white font-semibold text-sm transition-all whitespace-nowrap">Daily Power</button>
+            </div>
+        </div>
+        
+        <div id="history-device-view" class="bg-cardbg rounded-[24px] p-6 shadow-lg border border-white/5 mb-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-white">All Device Toggles</h3>
+                <button onclick="fetchHistory()" class="bg-accentBlue hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-rotate"></i> Refresh
+                </button>
+            </div>
+
+            <!-- Device History Search & Date (Added Calendar) -->
+            <div class="flex flex-col md:flex-row gap-3 mb-4">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-textSub"></i>
+                    <input type="text" id="history-search" onkeyup="searchItems('history-table-body', 'history-search', 'tr')" placeholder="Search device logs..." class="w-full bg-[#1e1e24] text-white border border-white/10 rounded-xl py-2 pl-9 pr-4 focus:outline-none focus:border-accentBlue transition text-sm shadow-inner">
+                </div>
+                <div class="relative flex gap-2">
+                    <input type="date" id="history-date" style="color-scheme: dark;" onchange="filterHistoryByDate('history-table-body', 'history-date')" class="w-full bg-[#1e1e24] text-white border border-white/10 rounded-xl py-2 px-4 focus:outline-none focus:border-accentBlue transition text-sm shadow-inner">
+                    <button onclick="document.getElementById('history-date').value=''; filterHistoryByDate('history-table-body', 'history-date');" class="bg-white/10 hover:bg-white/20 text-white font-semibold py-2 px-4 rounded-xl transition text-sm whitespace-nowrap">Clear Date</button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-textSub text-xs uppercase tracking-wider border-b border-white/10">
+                            <th class="pb-3 pl-4">Date & Time</th>
+                            <th class="pb-3">Device Name</th>
+                            <th class="pb-3">Action / Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body" class="text-sm">
+                        <tr><td colspan="3" class="text-center py-4 text-textSub"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="history-power-view" class="hidden bg-cardbg rounded-[24px] p-6 shadow-lg border border-white/5 mb-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-white">Daily Power Tracking</h3>
+                <button onclick="fetchPowerHistory()" class="bg-accentOrg hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-xl transition flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-rotate"></i> Refresh
+                </button>
+            </div>
+
+            <!-- Power History Search & Calendar -->
+            <div class="flex flex-col md:flex-row gap-3 mb-4">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-textSub"></i>
+                    <input type="text" id="power-search" onkeyup="searchItems('power-history-body', 'power-search', 'tr')" placeholder="Search power logs..." class="w-full bg-[#1e1e24] text-white border border-white/10 rounded-xl py-2 pl-9 pr-4 focus:outline-none focus:border-accentOrg transition text-sm shadow-inner">
+                </div>
+                <div class="relative flex gap-2">
+                    <input type="date" id="power-date" style="color-scheme: dark;" onchange="filterHistoryByDate('power-history-body', 'power-date')" class="w-full bg-[#1e1e24] text-white border border-white/10 rounded-xl py-2 px-4 focus:outline-none focus:border-accentOrg transition text-sm shadow-inner">
+                    <button onclick="document.getElementById('power-date').value=''; filterHistoryByDate('power-history-body', 'power-date');" class="bg-white/10 hover:bg-white/20 text-white font-semibold py-2 px-4 rounded-xl transition text-sm whitespace-nowrap">Clear Date</button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-textSub text-xs uppercase tracking-wider border-b border-white/10">
+                            <th class="pb-3 pl-4">Date</th>
+                            <th class="pb-3">Total Consumed (kWh)</th>
+                            <th class="pb-3">Estimated Cost (₱)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="power-history-body" class="text-sm">
+                        <tr><td colspan="3" class="text-center py-4 text-textSub"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings" class="content-section">
+        <h2 class="text-2xl font-bold text-white mb-6">Configuration</h2>
+        <div class="bg-cardbg rounded-[24px] p-6 shadow-lg border border-white/5 max-w-lg mb-6">
+            <h3 class="text-lg font-semibold text-white mb-2">Blynk Connection</h3>
+            <p class="text-sm text-textSub mb-6">Set up your Blynk Cloud hardware connection key.</p>
+            
+            <label class="block text-xs font-bold text-textSub mb-2 tracking-wide uppercase">Auth Token</label>
+            <div class="relative mb-6">
+                <i class="fa-solid fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-textSub"></i>
+                <input id="auth" type="text" value="GpsYbx2DyiuTPu39-vNPKO2a9AeZOxCK" class="w-full bg-[#1e1e24] text-white border border-white/10 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:border-accentOrg transition">
+            </div>
+            
+            <button onclick="refreshStatus()" class="w-full bg-accentOrg hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition flex justify-center items-center gap-2">
+                <i class="fa-solid fa-rotate"></i> Sync Connection
+            </button>
+        </div>
+
+        <div class="bg-cardbg rounded-[24px] p-6 shadow-lg border border-white/5 max-w-lg">
+            <h3 class="text-lg font-semibold text-white mb-2">Account Management</h3>
+            <p class="text-sm text-textSub mb-6">Update your login credentials.</p>
+            
+            <label class="block text-xs font-bold text-textSub mb-2 tracking-wide uppercase">New Username</label>
+            <div class="relative mb-4">
+                <i class="fa-solid fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-textSub"></i>
+                <input id="manage-user" type="text" class="w-full bg-[#1e1e24] text-white border border-white/10 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:border-accentBlue transition">
+            </div>
+
+            <label class="block text-xs font-bold text-textSub mb-2 tracking-wide uppercase">New Password</label>
+            <div class="relative mb-6">
+                <i class="fa-solid fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-textSub"></i>
+                <input id="manage-pass" type="password" class="w-full bg-[#1e1e24] text-white border border-white/10 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:border-accentBlue transition">
+            </div>
+            
+            <p id="manage-msg" class="text-emerald-400 text-xs mb-4 hidden">Credentials updated successfully!</p>
+            
+            <button onclick="updateCredentials()" class="w-full bg-accentBlue hover:bg-blue-600 text-white font-semibold py-3 rounded-xl transition flex justify-center items-center gap-2">
+                <i class="fa-solid fa-floppy-disk"></i> Save Changes
+            </button>
+        </div>
+    </div>
+
+    <div id="chat-widget" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <div id="chat-window" class="hidden bg-cardbg w-80 h-[26rem] rounded-2xl shadow-2xl border border-white/10 flex flex-col overflow-hidden mb-4 transition-all duration-300 origin-bottom-right">
+            
+            <div class="bg-gradient-to-r from-[#1e1e24] to-[#27272a] p-4 border-b border-white/5 flex justify-between items-center relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 w-20 h-20 bg-accentBlue/20 rounded-full blur-xl"></div>
+                <div class="flex items-center gap-3 relative z-10">
+                    <div class="w-10 h-10 rounded-full bg-accentBlue/10 flex items-center justify-center border border-accentBlue/30 text-accentBlue relative robot-float">
+                        <i class="fa-solid fa-robot text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold text-sm leading-tight">Ela</h3>
+                        <p class="text-[10px] text-emerald-400 font-mono tracking-widest uppercase flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> Online
+                        </p>
+                    </div>
+                </div>
+                <button onclick="toggleChat()" class="text-textSub hover:text-white transition relative z-10 w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10"><i class="fa-solid fa-times"></i></button>
+            </div>
+
+           <div id="chat-messages" class="flex-1 p-4 overflow-y-auto flex flex-col gap-3 text-sm">
+                <div class="bg-[#1e1e24] text-textMain p-3 rounded-xl rounded-tl-none self-start max-w-[85%] border border-white/5">
+                    Hello! 👋 I'm Ela, your highly intelligent home assistant! 
+                    <br><br>
+                    <strong>IMPORTANT:</strong> I am now using a Wake-Word lock! Say <strong>"Ela"</strong> before your command so I know you're talking to me.<br><br>
+                    Try saying: <em>"Ela, turn on the living room fan!"</em> 🤖
+                </div>
+            </div>
+            
+            <div id="typing-indicator" class="typing-indicator mx-4 mb-2">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+            <div class="p-3 bg-[#1e1e24] border-t border-white/5 flex gap-2">
+                <input type="text" id="chat-input" placeholder="Chat with Ela..." class="flex-1 bg-dashbg text-white px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-accentBlue text-sm transition-colors" onkeypress="handleChatKeyPress(event)">
+                <button onclick="sendChatMessage()" class="bg-accentBlue hover:bg-blue-600 text-white w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+
+        <button onclick="toggleChat()" class="relative w-16 h-16 bg-gradient-to-br from-accentBlue to-blue-500 text-white rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] flex flex-col items-center justify-center transition-transform hover:scale-110 group border-2 border-[#1e1e24]">
+            <i class="fa-solid fa-robot text-2xl group-hover:animate-bounce mb-0.5"></i>
+            <span class="absolute top-1 right-1 w-3.5 h-3.5 bg-emerald-400 border-2 border-[#1e1e24] rounded-full animate-pulse"></span>
+        </button>
+    </div>
+
+</main>
+
+<script src="js/main.js"></script>
+</body>
+</html>

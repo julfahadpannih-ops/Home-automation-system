@@ -1,0 +1,63 @@
+        /* General Resets */
+        body { font-family: 'Poppins', sans-serif; background-color: #18181b; color: #f4f4f5; height: 100vh; display: flex; overflow: hidden; margin: 0; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        /* Sidebar Navigation Active State */
+        .nav-btn { color: #a1a1aa; transition: all 0.3s; }
+        .nav-btn:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-btn.active { color: #f97316; background: rgba(249,115,22,0.1); border-right: 4px solid #f97316; font-weight: bold; }
+
+        /* Content Sections & Animations */
+        .content-section { display: none; opacity: 0; transition: opacity 0.5s; }
+        .content-section.active-section { display: block; opacity: 1; animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* House Map Elements */
+        .house-container { position: relative; width: 100%; aspect-ratio: 16/9; background: #1e1e24; border-radius: 1rem; padding: 0.75rem; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 0.75rem; border: 1px solid rgba(255,255,255,0.05); }
+        .room { background: #27272a; border: 1px solid rgba(255,255,255,0.1); border-radius: 0.75rem; position: relative; overflow: hidden; }
+        .room-label { position: absolute; top: 0.75rem; left: 0.75rem; font-size: 10px; font-weight: bold; color: #ffffff; text-transform: uppercase; letter-spacing: 0.05em; text-shadow: 0 2px 4px rgba(0,0,0,0.8); z-index: 5; }
+
+        /* Map Devices */
+        .h-device { position: absolute; width: 36px; height: 36px; background: rgba(30,30,36,0.8); backdrop-filter: blur(4px); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #a1a1aa; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5); transition: all 0.3s; border: 1px solid rgba(255,255,255,0.1); font-size: 14px; z-index: 10; }
+        .h-device.active { background: #f97316; color: white; box-shadow: 0 0 20px rgba(249,115,22,0.8); border-color: #f97316; }
+        .h-device.fan.active i { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Map Coordinates */
+        #h-light1 { top: 40%; left: 40%; }
+        #h-fan1 { top: 20%; right: 20%; }
+        #h-light2 { top: 40%; left: 40%; }
+        #h-fan3 { top: 40%; left: 40%; }
+        #h-light4 { top: 20%; right: 20%; }
+        #h-light3 { top: 40%; left: 20%; }
+        #h-fan2 { top: 40%; right: 20%; }
+
+        /* Device Tiles Interaction Elements */
+        .status-text { transition: color 0.3s; }
+        .device-tile.active .status-text { color: #f97316; }
+        .device-tile.active .tile-icon { background: #f97316; color: white; box-shadow: 0 0 15px rgba(249,115,22,0.3); }
+
+        /* Custom Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3f3f46; border-radius: 34px; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; border-radius: 50%; transition: .4s; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        input:checked + .slider { background-color: #f97316; }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* Cute Robot Animation */
+        @keyframes floatRobot {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .robot-float { animation: floatRobot 3s ease-in-out infinite; }
+        /* AI Typing Indicator */
+        .typing-indicator { display: none; align-items: center; gap: 4px; padding: 12px 16px; background: #1e1e24; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; border-top-left-radius: 0; width: fit-content; margin-top: 8px; }
+        .typing-indicator.active { display: flex; }
+        .typing-dot { width: 6px; height: 6px; background: #3b82f6; border-radius: 50%; animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; box-shadow: 0 0 8px rgba(59,130,246,0.8); } }
